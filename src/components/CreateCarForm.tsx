@@ -20,6 +20,7 @@ export const CreateCarForm = ({
     pricePerDay: 0,
     ac: false,
     ownerAddress: "",
+    availableToWithdraw: 0,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

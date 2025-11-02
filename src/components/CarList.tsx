@@ -24,10 +24,10 @@ export const CarsList = ({ cars }: CarsListProps) => {
     const xdr = result.toXDR();
 
     const signedTx = await walletService.signTransaction(xdr);
-    const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+    const txResponse = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
     setCars((prev) => prev.filter((car) => car.ownerAddress !== owner));
-    setHashId(txHash as string);
+    setHashId(txResponse.hash);
   };
 
   const handlePayout = async (owner: string, amount: number) => {
@@ -38,9 +38,18 @@ export const CarsList = ({ cars }: CarsListProps) => {
     const xdr = result.toXDR();
 
     const signedTx = await walletService.signTransaction(xdr);
-    const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+    const txResponse = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
-    setHashId(txHash as string);
+    // Actualizar el availableToWithdraw del auto
+    setCars((prev) =>
+      prev.map((c) =>
+        c.ownerAddress === owner
+          ? { ...c, availableToWithdraw: c.availableToWithdraw - amount }
+          : c
+      )
+    );
+
+    setHashId(txResponse.hash);
   };
 
   const handleRent = async (
@@ -60,7 +69,7 @@ export const CarsList = ({ cars }: CarsListProps) => {
     const xdr = result.toXDR();
 
     const signedTx = await walletService.signTransaction(xdr);
-    const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+    const txResponse = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
     setCars((prev) =>
       prev.map((c) =>
@@ -69,7 +78,7 @@ export const CarsList = ({ cars }: CarsListProps) => {
           : c
       )
     );
-    setHashId(txHash as string);
+    setHashId(txResponse.hash);
   };
 
   const getStatusStyle = (status: CarStatus) => {

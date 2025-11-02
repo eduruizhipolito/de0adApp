@@ -55,14 +55,14 @@ export class StellarService {
   }
 
 
-  async submitTransaction(xdr: string): Promise<string | undefined> {
+  async submitTransaction(xdr: string): Promise<Horizon.HorizonApi.SubmitTransactionResponse> {
     try {
       const transaction = TransactionBuilder.fromXDR(
         xdr,
         this.networkPassphrase
       );
       const result = await this.server.submitTransaction(transaction);
-      return result.hash;
+      return result;
     } catch (error) {
       console.error(error);
       if (error.response?.data?.extras?.result_codes) {
@@ -73,6 +73,7 @@ export class StellarService {
       } else {
         console.error("❌ Error general:", error);
       }
+      throw error;
     }
   }
 
@@ -313,7 +314,7 @@ async payment(
       transaction.sign(recieveKeypair);
     }
 
-    return await this.submitTransaction(transaction);
+    return await this.submitTransaction(transaction.toXDR());
   }
 
     async createClaimableBalance(
@@ -360,7 +361,7 @@ async payment(
 
     transaction.sign(sourceKeypair);
    
-      const response = await this.submitTransaction(transaction);
+      const response = await this.submitTransaction(transaction.toXDR());
       return {
         transaction: response,
         claimableBalanceId,
@@ -392,7 +393,7 @@ async payment(
 
     transaction.sign(claimantKeypair);
 
-    return await this.submitTransaction(transaction);
+    return await this.submitTransaction(transaction.toXDR());
   }
 }   
 
